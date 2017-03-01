@@ -1,0 +1,17 @@
+base
+methods
+datasets
+utils
+grDevices
+graphics
+stats
+slidify
+shiny
+slidifyLibraries
+devtools
+googleVis
+knitr
+rCharts
+reshape2
+XML
+xtable

@@ -11,12 +11,19 @@ mode        : selfcontained # {standalone, draft}
 ext_widgets: {rCharts: [libraries/nvd3]}
 ---
 
+<style>
+.title-slide {
+  background-color: #F1FAFA; /* #EDE0CF; ; #CA9F9D*/
+}
+</style>
+
 ```{r setup, include=FALSE,echo = F, message = F, warning = F, tidy = F}
 # make this an external chunk that can be included in any file
 library(xtable)
 library(reshape2)
 library(knitr)
 options(width = 100,digits=3)
+options(scipen = 200)  ## 去除科学计数法
 opts_chunk$set(message = FALSE, eval=TRUE,fig.align = "center", warning = FALSE, comment = NA, dpi = 100, fig.width=6, fig.height=4.5,tidy = FALSE, cache = FALSE, echo=TRUE)
 
 options(xtable.type = 'html')
@@ -115,7 +122,7 @@ arrange(flights , year, month, day)
 arrange(flights, desc(dep_delay))
 ```
 
---- 
+--- &vcenter
 
 - 上面代码等价于
 
@@ -152,7 +159,7 @@ select(flights, year:day)
 select(flights, -(year:day)) #select(flights, -c(year, month, day))
 ```
 
----
+--- &vcenter
 
 - 在使用 `select()` 时有一些函数会很有帮助
     - `starts_with()`
@@ -236,7 +243,7 @@ delay <- summarise(by_tailnum,
 delay <- filter(delay, count > 20, dist < 2000)
 ```
 
----
+--- &vcenter
 
 ```{r, results='asis'}
 xtable(head(delay,10))
@@ -335,5 +342,163 @@ flights %>%
     dep = mean(dep_delay, na.rm = TRUE)
   ) %>%
   filter(arr > 30 | dep > 30)
+```
+
+---
+
+## 面膜销售分析
+
+```{r, results = 'asis'}
+library(readxl)
+mask = read_excel("mask_data_cleaned.xlsx")   ## 读取原始数据
+xtable(head(mask))
+```
+
+--- &twocol
+
+### 面膜品牌分析
+
+```{r}
+#选取最受欢迎的前10品牌
+name_top10 = mask %>%
+              group_by(name) %>%
+              summarise(n = n()) %>%
+              filter(row_number(desc(n)) <= 10)
+```
+
+```{r, eval = FALSE}
+#使用 ggplot2 包绘制图形
+library(ggplot2)
+# geom_bar: 绘制柱形图
+ggplot(name_top10, aes(x = reorder(name, -n), y = n)) +
+  geom_bar(stat="identity") + 
+  theme(text = element_text(family = "STKaiti", size = 12))
+# theme(text = element_text(family = "STKaiti", size = 12)) 仅在 mac 系统时需要
+```
+
+--- &vcenter
+
+```{r, echo = FALSE}
+library(ggplot2)
+
+ggplot(name_top10, aes(x = reorder(name, -n), y = n)) +
+  geom_bar(stat="identity") + 
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+
+```{r}
+#选取最受欢迎的前50品牌
+name_top50 = mask %>%
+  group_by(name) %>%
+  summarise(n = n()) %>%
+  filter(row_number(desc(n)) <= 50)
+
+#使用 wordcloud2 包绘制词云
+library(wordcloud2)
+w = wordcloud2(as.data.frame(name_top50))
+```
+
+---
+
+```{r, echo=FALSE}
+htmlwidgets::saveWidget(w,"top50.html", selfcontained = F)
+webshot::webshot("top50.html","top50.png",vwidth = 1400, vheight = 1000, delay =5)
+```
+
+---
+
+## 哪个地方的面膜卖的最好?
+
+```{r}
+hot10 = mask %>%
+    group_by(location) %>%
+    summarise(sales = sum(sales), price = mean(price)) %>%
+    filter(row_number(-sales) <= 10)
+```
+
+```{r, eval=FALSE}
+#geom_hline: 画水平线
+ggplot(hot10, aes(x = reorder(location, -sales), y = sales)) + 
+  geom_bar(stat = "identity") + 
+  geom_hline(aes(yintercept = mean(sales)), linetype = 2, size = 1) +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, echo=FALSE}
+ggplot(hot10, aes(x = reorder(location, -sales), y = sales)) + 
+  geom_bar(stat = "identity") + 
+  geom_hline(aes(yintercept = mean(sales)), linetype = 2, size = 1) +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, eval=FALSE}
+ggplot(hot10, aes(x = reorder(location, -sales), y = price)) +
+  geom_point(size = 3) + 
+  geom_hline(aes(yintercept = mean(price)), linetype = 2, size = 1.5) +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, echo = FALSE}
+ggplot(hot10, aes(x = reorder(location, -sales), y = price)) +
+  geom_point(size = 3) + 
+  geom_hline(aes(yintercept = mean(price)), linetype = 2, size = 1.5) +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, eval=FALSE}
+location_price = mask %>% 
+  filter(location %in% hot10$location) %>%
+  select(location, price)
+
+#geom_boxplot: 绘制箱线图                    
+ggplot(location_price, aes(x = location, y = price)) + 
+  geom_boxplot() +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, echo=FALSE}
+location_price = mask %>% 
+  filter(location %in% hot10$location) %>%
+  select(location, price)
+                    
+ggplot(location_price, aes(x = location, y = price)) + 
+  geom_boxplot() +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, results='asis'}
+xtable(filter(mask, price == max(price)))
+```
+
+```{r, eval = FALSE}
+#geom_histogram: 绘制直方图
+ggplot(filter(mask, location == "广东"), aes(x = price)) + 
+  geom_histogram(binwidth = 50) +xlab("价格") + ylab("") +
+  ggtitle("广东省面膜销售价格分布") +
+  theme(text = element_text(family = "STKaiti", size = 12))
+```
+
+--- &vcenter
+
+```{r, echo = FALSE}
+ggplot(filter(mask, location == "广东"), aes(x = price)) + 
+  geom_histogram(binwidth = 50) +xlab("价格") + ylab("") +
+  ggtitle("广东省面膜销售价格分布") +
+  theme(text = element_text(family = "STKaiti", size = 12))
 ```
 
