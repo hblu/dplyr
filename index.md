@@ -48,7 +48,7 @@ xtable(head(flights[,1:9], 5))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 09:54:23 2017 -->
+<!-- Wed Mar  1 12:03:40 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> year </th> <th> month </th> <th> day </th> <th> dep_time </th> <th> sched_dep_time </th> <th> dep_delay </th> <th> arr_time </th> <th> sched_arr_time </th> <th> arr_delay </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 517 </td> <td align="right"> 515 </td> <td align="right"> 2.00 </td> <td align="right"> 830 </td> <td align="right"> 819 </td> <td align="right"> 11.00 </td> </tr>
@@ -63,7 +63,7 @@ xtable(head(flights[,10:19], 5))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 09:54:23 2017 -->
+<!-- Wed Mar  1 12:03:40 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> carrier </th> <th> flight </th> <th> tailnum </th> <th> origin </th> <th> dest </th> <th> air_time </th> <th> distance </th> <th> hour </th> <th> minute </th> <th> time_hour </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> UA </td> <td align="right"> 1545 </td> <td> N14228 </td> <td> EWR </td> <td> IAH </td> <td align="right"> 227.00 </td> <td align="right"> 1400.00 </td> <td align="right"> 5.00 </td> <td align="right"> 15.00 </td> <td align="right"> 1357016400.00 </td> </tr>
@@ -453,9 +453,9 @@ sample_n(flights, 3)
 # A tibble: 3 × 19
    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
   <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl>   <chr>
-1  2013     9    30      727            730        -3     1107           1124       -17      B6
-2  2013     8    23      555            605       -10      742            749        -7      DL
-3  2013     6    12     1335           1340        -5     1636           1700       -24      AA
+1  2013     2     7     1024           1030        -6     1353           1415       -22      VX
+2  2013     2    24     1936           1920        16     2122           2100        22      AA
+3  2013    12     6     1443           1430        13     1628           1605        23      EV
 # ... with 9 more variables: flight <int>, tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
 #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
 ```
@@ -471,16 +471,16 @@ sample_frac(flights, 0.01)
 # A tibble: 3,368 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
    <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl>   <chr>
-1   2013    11     6     1931           1935        -4     2228           2250       -22      AA
-2   2013     6    10     1100           1100         0     1357           1332        25      DL
-3   2013     3     9     1232           1237        -5     1519           1548       -29      UA
-4   2013    11     2     1037           1035         2     1312           1322       -10      UA
-5   2013    12     2     1259           1259         0     1452           1501        -9      US
-6   2013    10    26     1446           1456       -10     1628           1640       -12      9E
-7   2013    10    21      955           1000        -5     1130           1115        15      US
-8   2013     4    10     2113           2120        -7       NA           2315        NA      EV
-9   2013     6    12      552            600        -8      649            655        -6      US
-10  2013     4    17      826            830        -4     1103           1019        44      9E
+1   2013     9    18     1758           1754         4     1947           1955        -8      DL
+2   2013     9    25     1515           1517        -2     1817           1834       -17      B6
+3   2013    10     9     1451           1459        -8     1705           1756       -51      DL
+4   2013     8    15      629            630        -1      751            755        -4      AA
+5   2013     6    10     2054           2000        54     2333           2234        59      DL
+6   2013     4     1      831            837        -6     1043           1043         0      EV
+7   2013    10    10      716            725        -9      920            945       -25      MQ
+8   2013     4     7     1947           1955        -8     2123           2131        -8      9E
+9   2013     4    11     1841           1840         1     2105           2138       -33      DL
+10  2013     3    19     2019           1935        44     2309           2242        27      DL
 # ... with 3,358 more rows, and 9 more variables: flight <int>, tailnum <chr>, origin <chr>,
 #   dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
 ```
@@ -509,7 +509,7 @@ xtable(head(delay,10))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 09:54:25 2017 -->
+<!-- Wed Mar  1 12:03:42 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> tailnum </th> <th> count </th> <th> dist </th> <th> delay </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> N0EGMQ </td> <td align="right"> 371 </td> <td align="right"> 676.19 </td> <td align="right"> 9.98 </td> </tr>
@@ -628,8 +628,39 @@ Groups: year [?]
 
 ## `%>%`: 链式运算
 
-找出日平均起飞延迟时间和平均抵达延迟时间都大于30的日期
+找出日平均起飞延迟时间或平均抵达延迟时间大于30的日期
 
+*** =left
+
+
+```r
+a1 <- group_by(flights, year, month, day)
+a2 <- select(a1, arr_delay, dep_delay)
+a3 <- summarise(a2,
+  arr = mean(arr_delay, na.rm = TRUE),
+  dep = mean(dep_delay, na.rm = TRUE))
+a4 <- filter(a3, arr > 30 | dep > 30)
+```
+
+*** =right
+
+
+```r
+filter(
+  summarise(
+    select(
+      group_by(flights, year, month, day),
+      arr_delay, dep_delay
+    ),
+    arr = mean(arr_delay, na.rm = TRUE),
+    dep = mean(dep_delay, na.rm = TRUE)
+  ),
+  arr > 30 | dep > 30
+)
+```
+
+
+--- &twocol
 
 *** =left
 

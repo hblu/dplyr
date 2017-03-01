@@ -279,8 +279,37 @@ daily <- group_by(flights, year, month, day)
 
 ## `%>%`: 链式运算
 
-找出日平均起飞延迟时间和平均抵达延迟时间都大于30的日期
+找出日平均起飞延迟时间或平均抵达延迟时间大于30的日期
 
+*** =left
+
+```{r, eval=FALSE}
+a1 <- group_by(flights, year, month, day)
+a2 <- select(a1, arr_delay, dep_delay)
+a3 <- summarise(a2,
+  arr = mean(arr_delay, na.rm = TRUE),
+  dep = mean(dep_delay, na.rm = TRUE))
+a4 <- filter(a3, arr > 30 | dep > 30)
+```
+
+*** =right
+
+```{r, eval = FALSE}
+filter(
+  summarise(
+    select(
+      group_by(flights, year, month, day),
+      arr_delay, dep_delay
+    ),
+    arr = mean(arr_delay, na.rm = TRUE),
+    dep = mean(dep_delay, na.rm = TRUE)
+  ),
+  arr > 30 | dep > 30
+)
+```
+
+
+--- &twocol
 
 *** =left
 
