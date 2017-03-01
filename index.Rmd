@@ -84,7 +84,7 @@ xtable(head(flights[,10:19], 5))
 
 ```{r}
 library(dplyr)
-filter(flights, month == 1, day == 1)
+head(filter(flights, month == 1, day == 1), 3)
 ```
 
 这等价于

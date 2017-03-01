@@ -57,7 +57,7 @@ xtable(head(flights[,1:9], 5))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 18:04:55 2017 -->
+<!-- Wed Mar  1 20:27:07 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> year </th> <th> month </th> <th> day </th> <th> dep_time </th> <th> sched_dep_time </th> <th> dep_delay </th> <th> arr_time </th> <th> sched_arr_time </th> <th> arr_delay </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 517 </td> <td align="right"> 515 </td> <td align="right"> 2.00 </td> <td align="right"> 830 </td> <td align="right"> 819 </td> <td align="right"> 11.00 </td> </tr>
@@ -72,7 +72,7 @@ xtable(head(flights[,10:19], 5))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 18:04:55 2017 -->
+<!-- Wed Mar  1 20:27:07 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> carrier </th> <th> flight </th> <th> tailnum </th> <th> origin </th> <th> dest </th> <th> air_time </th> <th> distance </th> <th> hour </th> <th> minute </th> <th> time_hour </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> UA </td> <td align="right"> 1545 </td> <td> N14228 </td> <td> EWR </td> <td> IAH </td> <td align="right"> 227.00 </td> <td align="right"> 1400.00 </td> <td align="right"> 5.00 </td> <td align="right"> 15.00 </td> <td align="right"> 1357016400.00 </td> </tr>
@@ -105,25 +105,18 @@ xtable(head(flights[,10:19], 5))
 
 ```r
 library(dplyr)
-filter(flights, month == 1, day == 1)
+head(filter(flights, month == 1, day == 1), 3)
 ```
 
 ```
-# A tibble: 842 × 19
-    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
-   <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl>   <chr>
-1   2013     1     1      517            515         2      830            819        11      UA
-2   2013     1     1      533            529         4      850            830        20      UA
-3   2013     1     1      542            540         2      923            850        33      AA
-4   2013     1     1      544            545        -1     1004           1022       -18      B6
-5   2013     1     1      554            600        -6      812            837       -25      DL
-6   2013     1     1      554            558        -4      740            728        12      UA
-7   2013     1     1      555            600        -5      913            854        19      B6
-8   2013     1     1      557            600        -3      709            723       -14      EV
-9   2013     1     1      557            600        -3      838            846        -8      B6
-10  2013     1     1      558            600        -2      753            745         8      AA
-# ... with 832 more rows, and 9 more variables: flight <int>, tailnum <chr>, origin <chr>,
-#   dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+# A tibble: 3 × 19
+   year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+  <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl>   <chr>
+1  2013     1     1      517            515         2      830            819        11      UA
+2  2013     1     1      533            529         4      850            830        20      UA
+3  2013     1     1      542            540         2      923            850        33      AA
+# ... with 9 more variables: flight <int>, tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
 ```
 
 这等价于
@@ -462,9 +455,9 @@ sample_n(flights, 3)
 # A tibble: 3 × 19
    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
   <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl>   <chr>
-1  2013     3     3     1459           1500        -1     1643           1655       -12      MQ
-2  2013     3     1      739            730         9     1036           1110       -34      VX
-3  2013     2    14     1647           1649        -2     1813           1816        -3      EV
+1  2013    12     5      801            811       -10     1009           1012        -3      EV
+2  2013    11     2     1235           1155        40     1458           1420        38      MQ
+3  2013    11     5     1307           1310        -3     1536           1557       -21      UA
 # ... with 9 more variables: flight <int>, tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
 #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
 ```
@@ -480,16 +473,16 @@ sample_frac(flights, 0.01)
 # A tibble: 3,368 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
    <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl>   <chr>
-1   2013     3    14     1002           1010        -8     1119           1140       -21      MQ
-2   2013     2    12      943            945        -2     1119           1135       -16      WN
-3   2013     5    13     1606           1540        26     1721           1736       -15      9E
-4   2013     6    29      950            847        63     1221           1156        25      UA
-5   2013     3     6       NA           1900        NA       NA           2015        NA      US
-6   2013     7    27      854            900        -6     1002           1033       -31      UA
-7   2013     2     8       NA           1659        NA       NA           1822        NA      UA
-8   2013     1     7     1614           1610         4     1825           1800        25      AA
-9   2013     7    25     1821           1825        -4     2147           2126        21      DL
-10  2013    10    22     1224           1229        -5     1337           1347       -10      B6
+1   2013     8    18     1638           1645        -7     1759           1827       -28      B6
+2   2013    11    10     1443           1430        13     1701           1634        27      OO
+3   2013    10     3      753            755        -2      926            935        -9      MQ
+4   2013     5    15      753            755        -2      935            949       -14      US
+5   2013    12    28     1100           1100         0     1338           1358       -20      DL
+6   2013    10    20     1754           1735        19     2003           2000         3      WN
+7   2013     2    13     1551           1510        41     1918           1801        77      UA
+8   2013     1    14      828            830        -2     1305           1335       -30      DL
+9   2013     2    20     1409           1414        -5     1559           1615       -16      EV
+10  2013     3    17     1727           1652        35     1827           1806        21      B6
 # ... with 3,358 more rows, and 9 more variables: flight <int>, tailnum <chr>, origin <chr>,
 #   dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
 ```
@@ -518,7 +511,7 @@ xtable(head(delay,10))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 18:04:57 2017 -->
+<!-- Wed Mar  1 20:27:09 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> tailnum </th> <th> count </th> <th> dist </th> <th> delay </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> N0EGMQ </td> <td align="right"> 371 </td> <td align="right"> 676.19 </td> <td align="right"> 9.98 </td> </tr>
@@ -719,7 +712,7 @@ xtable(head(mask))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 18:04:57 2017 -->
+<!-- Wed Mar  1 20:27:10 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> name </th> <th> price </th> <th> sales </th> <th> reviews </th> <th> location </th> <th> type </th> <th> country </th> <th> 补水保湿 </th> <th> 美白提亮 </th> <th> 控油祛痘 </th> <th> 清洁毛孔 </th> <th> 提拉紧致 </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> ANGLEE </td> <td align="right"> 254.00 </td> <td align="right"> 40.00 </td> <td align="right"> 3133.00 </td> <td> 湖南 </td> <td> 任何肤质 </td> <td> 中国 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right"> 0.00 </td> <td align="right"> 0.00 </td> <td align="right"> 0.00 </td> </tr>
@@ -843,7 +836,7 @@ xtable(filter(mask, price == max(price)))
 ```
 
 <!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
-<!-- Wed Mar  1 18:05:09 2017 -->
+<!-- Wed Mar  1 20:27:22 2017 -->
 <table border=1>
 <tr> <th>  </th> <th> name </th> <th> price </th> <th> sales </th> <th> reviews </th> <th> location </th> <th> type </th> <th> country </th> <th> 补水保湿 </th> <th> 美白提亮 </th> <th> 控油祛痘 </th> <th> 清洁毛孔 </th> <th> 提拉紧致 </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> 七水 </td> <td align="right"> 1796.00 </td> <td align="right"> 4.00 </td> <td align="right"> 26.00 </td> <td> 广东 </td> <td> 任何肤质 </td> <td> 中国 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> </tr>
