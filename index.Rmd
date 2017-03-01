@@ -1,0 +1,310 @@
+---
+title       : 数据清洗
+subtitle    : dplyr 入门
+author      : 陆海波
+job         : 上海应用技术大学
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [quiz, bootstrap, shiny, interactive, mathjax]  # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+ext_widgets: {rCharts: [libraries/nvd3]}
+---
+
+```{r setup, include=FALSE,echo = F, message = F, warning = F, tidy = F}
+# make this an external chunk that can be included in any file
+library(xtable)
+library(reshape2)
+library(knitr)
+options(width = 100,digits=3)
+opts_chunk$set(message = FALSE, eval=TRUE,fig.align = "center", warning = FALSE, comment = NA, dpi = 100, fig.width=6, fig.height=4.5,tidy = FALSE, cache = FALSE, echo=TRUE)
+
+options(xtable.type = 'html')
+knit_hooks$set(inline = function(x) {
+  if(is.numeric(x)) {
+    round(x, getOption('digits'))
+  } else {
+    paste(as.character(x), collapse = ', ')
+  }
+})
+knit_hooks$set(plot = knitr:::hook_plot_html)
+```
+
+## 数据框 (`data.frame`)
+
+<h3>
+数据框是一种矩阵形式的数据, 数据框中各列可以是不同类型对的数据.
+</h3>
+
+- <h3>每行是一个观测</h3>
+- <h3>每列是一个变量</h3>
+
+```{r}
+library(nycflights13)
+class(flights)
+dim(flights)
+```
+
+---
+
+```{r, results='asis'}
+xtable(head(flights[,1:9], 5))
+xtable(head(flights[,10:19], 5))
+```
+
+---
+
+## `dplyr` 常用函数
+
+- `filter()` (`slice()`)
+- `arrange()`
+- `select()` (`rename()`)
+- `distinct()`
+- `mutate()` (`transmute()`)
+- `summarise()`
+- `sample_n()` (`sample_frac()`)
+- `group_by()`
+- `%>%`
+
+---
+
+## 使用 `filter()` 来过滤行
+
+例如, 我们想选择1月1号的所有航班
+
+```{r}
+library(dplyr)
+filter(flights, month == 1, day == 1)
+```
+
+这等价于
+
+```{r, eval=FALSE}
+flights[flights$month == 1 & flights$day == 1, ]
+```
+
+---
+
+- 选择1月或2月的所有航班
+
+```{r, eval=FALSE}
+filter(flights, month == 1 | month == 2)
+```
+
+- 如果想按照位置选择行, 可用 `slice()`
+
+```{r}
+slice(flights, 1:5)
+```
+
+---
+
+## 使用 `arrange()` 对行进行排序
+
+- 按年、月、日对航班进行排序
+
+```{r}
+arrange(flights , year, month, day)
+```
+
+---
+
+- 使用 `desc()` 对一列以降序排序
+
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+--- 
+
+- 上面代码等价于
+
+```{r, eval=FALSE}
+flights[order(flights$year, flights$month, flights$day), ]
+
+flights[order(flights$dep_delay, decreasing = TRUE), ] 
+#flights[order(-flights$arr_delay), ]
+```
+
+---
+
+## 使用 `select()` 选择列
+
+- 通过变量名选择列
+
+```{r}
+select(flights, year, month, day)
+```
+
+---
+
+- 选择两个变量间的所有变量
+
+```{r}
+select(flights, year:day)
+```
+
+---
+
+- 选择除了某些变量外的所有变量
+
+```{r}
+select(flights, -(year:day)) #select(flights, -c(year, month, day))
+```
+
+---
+
+- 在使用 `select()` 时有一些函数会很有帮助
+    - `starts_with()`
+    - `ends_with()`
+    - `matches()`
+    - `contains()`
+    
+```{r, eval=FALSE}
+select(flights, contains("dep"))
+```
+
+--- &twocol
+
+## 使用 `distinct()` 提取不重复的行
+
+*** =left
+
+```{r}
+distinct(flights, tailnum)
+```
+
+*** =right
+
+```{r}
+distinct(flights, origin, dest)
+```
+
+---
+
+## 使用 `mutate()` 创建新列
+
+```{r}
+mutate(flights, gain = arr_delay - dep_delay, 
+       speed = distance / air_time *60)
+```
+
+--- 
+
+### 如果只想保留新创建的变量
+
+```{r}
+transmute(flights, gain = arr_delay - dep_delay, 
+       speed = distance / air_time *60)
+```
+
+
+---
+
+## 使用 `summarise()` 进行汇总
+
+```{r}
+summarise(flights, dep_delay = mean(dep_delay, na.rm = TRUE))
+```
+
+---
+
+## 随机选择一些行 `sample_n()`, `sample_frac()`
+
+```{r}
+sample_n(flights, 3)
+```
+
+---
+
+```{r}
+sample_frac(flights, 0.01)
+```
+
+---
+
+## 分组运算 `group_by()`
+
+找出所有飞机中飞行次数20次以上, 且平均飞行距离小于 2000 的飞机的平均飞行距离和平均晚点抵达时间
+
+```{r}
+by_tailnum <- group_by(flights, tailnum)
+delay <- summarise(by_tailnum,
+  count = n(), #n() 返回行数
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE))
+delay <- filter(delay, count > 20, dist < 2000)
+```
+
+---
+
+```{r, results='asis'}
+xtable(head(delay,10))
+```
+
+---
+
+找出所有可能目的地的飞机数和航班数
+
+```{r}
+dest = group_by(flights, dest)
+summarise(dest, 
+          planes = n_distinct(tailnum),
+          flights = n()
+)
+```
+
+---
+
+## 按多个变量进行分组
+
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n()))
+```
+
+---
+
+```{r}
+(per_month <- summarise(per_day, flights = sum(flights)))
+```
+
+---
+
+```{r}
+(per_year  <- summarise(per_month, flights = sum(flights)))
+```
+
+--- &twocol
+
+## `%>%`: 链式运算
+
+找出日平均起飞延迟时间和平均抵达延迟时间都大于30的日期
+
+
+*** =left
+
+```{r, eval=FALSE}
+flights %>%
+  group_by(year, month, day) %>%
+  select(arr_delay, dep_delay) %>%
+  summarise(
+    arr = mean(arr_delay, na.rm = TRUE),
+    dep = mean(dep_delay, na.rm = TRUE)
+  ) %>%
+  filter(arr > 30 | dep > 30)
+```
+
+*** =right
+
+```{r, echo=FALSE}
+flights %>%
+  group_by(year, month, day) %>%
+  select(arr_delay, dep_delay) %>%
+  summarise(
+    arr = mean(arr_delay, na.rm = TRUE),
+    dep = mean(dep_delay, na.rm = TRUE)
+  ) %>%
+  filter(arr > 30 | dep > 30)
+```
+

@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>数据清洗</title>
+  <meta charset="utf-8">
+  <meta name="description" content="数据清洗">
+  <meta name="author" content="陆海波">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="libraries/widgets/quiz/css/demo.css"></link>
+<link rel=stylesheet href="libraries/widgets/bootstrap/css/bootstrap.css"></link>
+<link rel=stylesheet href="libraries/widgets/interactive/css/aceeditor.css"></link>
+<link rel=stylesheet href="libraries/widgets/nvd3/css/nv.d3.css"></link>
+<link rel=stylesheet href="libraries/widgets/nvd3/css/rNVD3.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  <script src="libraries/widgets/nvd3/js/jquery-1.8.2.min.js"></script>
+<script src="libraries/widgets/nvd3/js/d3.v3.min.js"></script>
+<script src="libraries/widgets/nvd3/js/nv.d3.min-new.js"></script>
+<script src="libraries/widgets/nvd3/js/fisheye.js"></script>
+
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>数据清洗</h1>
+    <h2>dplyr 入门</h2>
+    <p>陆海波<br/>上海应用技术大学</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>数据框 (<code>data.frame</code>)</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>
+数据框是一种矩阵形式的数据, 数据框中各列可以是不同类型对的数据.
+</h3>
+
+<ul>
+<li><h3>每行是一个观测</h3></li>
+<li><h3>每列是一个变量</h3></li>
+</ul>
+
+<pre><code class="r">library(nycflights13)
+class(flights)
+</code></pre>
+
+<pre><code>[1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;
+</code></pre>
+
+<pre><code class="r">dim(flights)
+</code></pre>
+
+<pre><code>[1] 336776     19
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">xtable(head(flights[,1:9], 5))
+</code></pre>
+
+<!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
+
+<!-- Wed Mar  1 09:54:23 2017 -->
+
+<table border=1>
+<tr> <th>  </th> <th> year </th> <th> month </th> <th> day </th> <th> dep_time </th> <th> sched_dep_time </th> <th> dep_delay </th> <th> arr_time </th> <th> sched_arr_time </th> <th> arr_delay </th>  </tr>
+  <tr> <td align="right"> 1 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 517 </td> <td align="right"> 515 </td> <td align="right"> 2.00 </td> <td align="right"> 830 </td> <td align="right"> 819 </td> <td align="right"> 11.00 </td> </tr>
+  <tr> <td align="right"> 2 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 533 </td> <td align="right"> 529 </td> <td align="right"> 4.00 </td> <td align="right"> 850 </td> <td align="right"> 830 </td> <td align="right"> 20.00 </td> </tr>
+  <tr> <td align="right"> 3 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 542 </td> <td align="right"> 540 </td> <td align="right"> 2.00 </td> <td align="right"> 923 </td> <td align="right"> 850 </td> <td align="right"> 33.00 </td> </tr>
+  <tr> <td align="right"> 4 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 544 </td> <td align="right"> 545 </td> <td align="right"> -1.00 </td> <td align="right"> 1004 </td> <td align="right"> 1022 </td> <td align="right"> -18.00 </td> </tr>
+  <tr> <td align="right"> 5 </td> <td align="right"> 2013 </td> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right"> 554 </td> <td align="right"> 600 </td> <td align="right"> -6.00 </td> <td align="right"> 812 </td> <td align="right"> 837 </td> <td align="right"> -25.00 </td> </tr>
+   </table>
+
+<pre><code class="r">xtable(head(flights[,10:19], 5))
+</code></pre>
+
+<!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
+
+<!-- Wed Mar  1 09:54:23 2017 -->
+
+<table border=1>
+<tr> <th>  </th> <th> carrier </th> <th> flight </th> <th> tailnum </th> <th> origin </th> <th> dest </th> <th> air_time </th> <th> distance </th> <th> hour </th> <th> minute </th> <th> time_hour </th>  </tr>
+  <tr> <td align="right"> 1 </td> <td> UA </td> <td align="right"> 1545 </td> <td> N14228 </td> <td> EWR </td> <td> IAH </td> <td align="right"> 227.00 </td> <td align="right"> 1400.00 </td> <td align="right"> 5.00 </td> <td align="right"> 15.00 </td> <td align="right"> 1357016400.00 </td> </tr>
+  <tr> <td align="right"> 2 </td> <td> UA </td> <td align="right"> 1714 </td> <td> N24211 </td> <td> LGA </td> <td> IAH </td> <td align="right"> 227.00 </td> <td align="right"> 1416.00 </td> <td align="right"> 5.00 </td> <td align="right"> 29.00 </td> <td align="right"> 1357016400.00 </td> </tr>
+  <tr> <td align="right"> 3 </td> <td> AA </td> <td align="right"> 1141 </td> <td> N619AA </td> <td> JFK </td> <td> MIA </td> <td align="right"> 160.00 </td> <td align="right"> 1089.00 </td> <td align="right"> 5.00 </td> <td align="right"> 40.00 </td> <td align="right"> 1357016400.00 </td> </tr>
+  <tr> <td align="right"> 4 </td> <td> B6 </td> <td align="right"> 725 </td> <td> N804JB </td> <td> JFK </td> <td> BQN </td> <td align="right"> 183.00 </td> <td align="right"> 1576.00 </td> <td align="right"> 5.00 </td> <td align="right"> 45.00 </td> <td align="right"> 1357016400.00 </td> </tr>
+  <tr> <td align="right"> 5 </td> <td> DL </td> <td align="right"> 461 </td> <td> N668DN </td> <td> LGA </td> <td> ATL </td> <td align="right"> 116.00 </td> <td align="right"> 762.00 </td> <td align="right"> 6.00 </td> <td align="right"> 0.00 </td> <td align="right"> 1357020000.00 </td> </tr>
+   </table>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2><code>dplyr</code> 常用函数</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><code>filter()</code> (<code>slice()</code>)</li>
+<li><code>arrange()</code></li>
+<li><code>select()</code> (<code>rename()</code>)</li>
+<li><code>distinct()</code></li>
+<li><code>mutate()</code> (<code>transmute()</code>)</li>
+<li><code>summarise()</code></li>
+<li><code>sample_n()</code> (<code>sample_frac()</code>)</li>
+<li><code>group_by()</code></li>
+<li><code>%&gt;%</code></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>使用 <code>filter()</code> 来过滤行</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>例如, 我们想选择1月1号的所有航班</p>
+
+<pre><code class="r">library(dplyr)
+filter(flights, month == 1, day == 1)
+</code></pre>
+
+<pre><code># A tibble: 842 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1   2013     1     1      517            515         2      830            819        11      UA
+2   2013     1     1      533            529         4      850            830        20      UA
+3   2013     1     1      542            540         2      923            850        33      AA
+4   2013     1     1      544            545        -1     1004           1022       -18      B6
+5   2013     1     1      554            600        -6      812            837       -25      DL
+6   2013     1     1      554            558        -4      740            728        12      UA
+7   2013     1     1      555            600        -5      913            854        19      B6
+8   2013     1     1      557            600        -3      709            723       -14      EV
+9   2013     1     1      557            600        -3      838            846        -8      B6
+10  2013     1     1      558            600        -2      753            745         8      AA
+# ... with 832 more rows, and 9 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;,
+#   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+<p>这等价于</p>
+
+<pre><code class="r">flights[flights$month == 1 &amp; flights$day == 1, ]
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>选择1月或2月的所有航班</li>
+</ul>
+
+<pre><code class="r">filter(flights, month == 1 | month == 2)
+</code></pre>
+
+<ul>
+<li>如果想按照位置选择行, 可用 <code>slice()</code></li>
+</ul>
+
+<pre><code class="r">slice(flights, 1:5)
+</code></pre>
+
+<pre><code># A tibble: 5 × 19
+   year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+  &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1  2013     1     1      517            515         2      830            819        11      UA
+2  2013     1     1      533            529         4      850            830        20      UA
+3  2013     1     1      542            540         2      923            850        33      AA
+4  2013     1     1      544            545        -1     1004           1022       -18      B6
+5  2013     1     1      554            600        -6      812            837       -25      DL
+# ... with 9 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;,
+#   distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>使用 <code>arrange()</code> 对行进行排序</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>按年、月、日对航班进行排序</li>
+</ul>
+
+<pre><code class="r">arrange(flights , year, month, day)
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1   2013     1     1      517            515         2      830            819        11      UA
+2   2013     1     1      533            529         4      850            830        20      UA
+3   2013     1     1      542            540         2      923            850        33      AA
+4   2013     1     1      544            545        -1     1004           1022       -18      B6
+5   2013     1     1      554            600        -6      812            837       -25      DL
+6   2013     1     1      554            558        -4      740            728        12      UA
+7   2013     1     1      555            600        -5      913            854        19      B6
+8   2013     1     1      557            600        -3      709            723       -14      EV
+9   2013     1     1      557            600        -3      838            846        -8      B6
+10  2013     1     1      558            600        -2      753            745         8      AA
+# ... with 336,766 more rows, and 9 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;,
+#   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>使用 <code>desc()</code> 对一列以降序排序</li>
+</ul>
+
+<pre><code class="r">arrange(flights, desc(dep_delay))
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1   2013     1     9      641            900      1301     1242           1530      1272      HA
+2   2013     6    15     1432           1935      1137     1607           2120      1127      MQ
+3   2013     1    10     1121           1635      1126     1239           1810      1109      MQ
+4   2013     9    20     1139           1845      1014     1457           2210      1007      AA
+5   2013     7    22      845           1600      1005     1044           1815       989      MQ
+6   2013     4    10     1100           1900       960     1342           2211       931      DL
+7   2013     3    17     2321            810       911      135           1020       915      DL
+8   2013     6    27      959           1900       899     1236           2226       850      DL
+9   2013     7    22     2257            759       898      121           1026       895      DL
+10  2013    12     5      756           1700       896     1058           2020       878      AA
+# ... with 336,766 more rows, and 9 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;,
+#   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>上面代码等价于</li>
+</ul>
+
+<pre><code class="r">flights[order(flights$year, flights$month, flights$day), ]
+
+flights[order(flights$dep_delay, decreasing = TRUE), ] 
+#flights[order(-flights$arr_delay), ]
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>使用 <code>select()</code> 选择列</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>通过变量名选择列</li>
+</ul>
+
+<pre><code class="r">select(flights, year, month, day)
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 3
+    year month   day
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1   2013     1     1
+2   2013     1     1
+3   2013     1     1
+4   2013     1     1
+5   2013     1     1
+6   2013     1     1
+7   2013     1     1
+8   2013     1     1
+9   2013     1     1
+10  2013     1     1
+# ... with 336,766 more rows
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>选择两个变量间的所有变量</li>
+</ul>
+
+<pre><code class="r">select(flights, year:day)
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 3
+    year month   day
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1   2013     1     1
+2   2013     1     1
+3   2013     1     1
+4   2013     1     1
+5   2013     1     1
+6   2013     1     1
+7   2013     1     1
+8   2013     1     1
+9   2013     1     1
+10  2013     1     1
+# ... with 336,766 more rows
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>选择除了某些变量外的所有变量</li>
+</ul>
+
+<pre><code class="r">select(flights, -(year:day)) #select(flights, -c(year, month, day))
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 16
+   dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier flight tailnum
+      &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;  &lt;int&gt;   &lt;chr&gt;
+1       517            515         2      830            819        11      UA   1545  N14228
+2       533            529         4      850            830        20      UA   1714  N24211
+3       542            540         2      923            850        33      AA   1141  N619AA
+4       544            545        -1     1004           1022       -18      B6    725  N804JB
+5       554            600        -6      812            837       -25      DL    461  N668DN
+6       554            558        -4      740            728        12      UA   1696  N39463
+7       555            600        -5      913            854        19      B6    507  N516JB
+8       557            600        -3      709            723       -14      EV   5708  N829AS
+9       557            600        -3      838            846        -8      B6     79  N593JB
+10      558            600        -2      753            745         8      AA    301  N3ALAA
+# ... with 336,766 more rows, and 7 more variables: origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;,
+#   distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>在使用 <code>select()</code> 时有一些函数会很有帮助
+
+<ul>
+<li><code>starts_with()</code></li>
+<li><code>ends_with()</code></li>
+<li><code>matches()</code></li>
+<li><code>contains()</code></li>
+</ul></li>
+</ul>
+
+<pre><code class="r">select(flights, contains(&quot;dep&quot;))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>使用 <code>distinct()</code> 提取不重复的行</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <pre><code class="r">distinct(flights, tailnum)
+</code></pre>
+
+<pre><code># A tibble: 4,044 × 1
+   tailnum
+     &lt;chr&gt;
+1   N14228
+2   N24211
+3   N619AA
+4   N804JB
+5   N668DN
+6   N39463
+7   N516JB
+8   N829AS
+9   N593JB
+10  N3ALAA
+# ... with 4,034 more rows
+</code></pre>
+
+</div>
+<div style='float:right;width:48%;'>
+  <pre><code class="r">distinct(flights, origin, dest)
+</code></pre>
+
+<pre><code># A tibble: 224 × 2
+   origin  dest
+    &lt;chr&gt; &lt;chr&gt;
+1     EWR   IAH
+2     LGA   IAH
+3     JFK   MIA
+4     JFK   BQN
+5     LGA   ATL
+6     EWR   ORD
+7     EWR   FLL
+8     LGA   IAD
+9     JFK   MCO
+10    LGA   ORD
+# ... with 214 more rows
+</code></pre>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>使用 <code>mutate()</code> 创建新列</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">mutate(flights, gain = arr_delay - dep_delay, 
+       speed = distance / air_time *60)
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 21
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1   2013     1     1      517            515         2      830            819        11      UA
+2   2013     1     1      533            529         4      850            830        20      UA
+3   2013     1     1      542            540         2      923            850        33      AA
+4   2013     1     1      544            545        -1     1004           1022       -18      B6
+5   2013     1     1      554            600        -6      812            837       -25      DL
+6   2013     1     1      554            558        -4      740            728        12      UA
+7   2013     1     1      555            600        -5      913            854        19      B6
+8   2013     1     1      557            600        -3      709            723       -14      EV
+9   2013     1     1      557            600        -3      838            846        -8      B6
+10  2013     1     1      558            600        -2      753            745         8      AA
+# ... with 336,766 more rows, and 11 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;,
+#   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;,
+#   gain &lt;dbl&gt;, speed &lt;dbl&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h3>如果只想保留新创建的变量</h3>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">transmute(flights, gain = arr_delay - dep_delay, 
+       speed = distance / air_time *60)
+</code></pre>
+
+<pre><code># A tibble: 336,776 × 2
+    gain speed
+   &lt;dbl&gt; &lt;dbl&gt;
+1      9   370
+2     16   374
+3     31   408
+4    -17   517
+5    -19   394
+6     16   288
+7     24   404
+8    -11   259
+9     -5   405
+10    10   319
+# ... with 336,766 more rows
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>使用 <code>summarise()</code> 进行汇总</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">summarise(flights, dep_delay = mean(dep_delay, na.rm = TRUE))
+</code></pre>
+
+<pre><code># A tibble: 1 × 1
+  dep_delay
+      &lt;dbl&gt;
+1      12.6
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>随机选择一些行 <code>sample_n()</code>, <code>sample_frac()</code></h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">sample_n(flights, 3)
+</code></pre>
+
+<pre><code># A tibble: 3 × 19
+   year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+  &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1  2013     9    30      727            730        -3     1107           1124       -17      B6
+2  2013     8    23      555            605       -10      742            749        -7      DL
+3  2013     6    12     1335           1340        -5     1636           1700       -24      AA
+# ... with 9 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;,
+#   distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-18" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">sample_frac(flights, 0.01)
+</code></pre>
+
+<pre><code># A tibble: 3,368 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;   &lt;chr&gt;
+1   2013    11     6     1931           1935        -4     2228           2250       -22      AA
+2   2013     6    10     1100           1100         0     1357           1332        25      DL
+3   2013     3     9     1232           1237        -5     1519           1548       -29      UA
+4   2013    11     2     1037           1035         2     1312           1322       -10      UA
+5   2013    12     2     1259           1259         0     1452           1501        -9      US
+6   2013    10    26     1446           1456       -10     1628           1640       -12      9E
+7   2013    10    21      955           1000        -5     1130           1115        15      US
+8   2013     4    10     2113           2120        -7       NA           2315        NA      EV
+9   2013     6    12      552            600        -8      649            655        -6      US
+10  2013     4    17      826            830        -4     1103           1019        44      9E
+# ... with 3,358 more rows, and 9 more variables: flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;,
+#   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>分组运算 <code>group_by()</code></h2>
+  </hgroup>
+  <article data-timings="">
+    <p>找出所有飞机中飞行次数20次以上, 且平均飞行距离小于 2000 的飞机的平均飞行距离和平均晚点抵达时间</p>
+
+<pre><code class="r">by_tailnum &lt;- group_by(flights, tailnum)
+delay &lt;- summarise(by_tailnum,
+  count = n(), #n() 返回行数
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE))
+delay &lt;- filter(delay, count &gt; 20, dist &lt; 2000)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-20" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">xtable(head(delay,10))
+</code></pre>
+
+<!-- html table generated in R 3.3.2 by xtable 1.8-2 package -->
+
+<!-- Wed Mar  1 09:54:25 2017 -->
+
+<table border=1>
+<tr> <th>  </th> <th> tailnum </th> <th> count </th> <th> dist </th> <th> delay </th>  </tr>
+  <tr> <td align="right"> 1 </td> <td> N0EGMQ </td> <td align="right"> 371 </td> <td align="right"> 676.19 </td> <td align="right"> 9.98 </td> </tr>
+  <tr> <td align="right"> 2 </td> <td> N10156 </td> <td align="right"> 153 </td> <td align="right"> 757.95 </td> <td align="right"> 12.72 </td> </tr>
+  <tr> <td align="right"> 3 </td> <td> N102UW </td> <td align="right">  48 </td> <td align="right"> 535.88 </td> <td align="right"> 2.94 </td> </tr>
+  <tr> <td align="right"> 4 </td> <td> N103US </td> <td align="right">  46 </td> <td align="right"> 535.20 </td> <td align="right"> -6.93 </td> </tr>
+  <tr> <td align="right"> 5 </td> <td> N104UW </td> <td align="right">  47 </td> <td align="right"> 535.26 </td> <td align="right"> 1.80 </td> </tr>
+  <tr> <td align="right"> 6 </td> <td> N10575 </td> <td align="right"> 289 </td> <td align="right"> 519.70 </td> <td align="right"> 20.69 </td> </tr>
+  <tr> <td align="right"> 7 </td> <td> N105UW </td> <td align="right">  45 </td> <td align="right"> 524.84 </td> <td align="right"> -0.27 </td> </tr>
+  <tr> <td align="right"> 8 </td> <td> N107US </td> <td align="right">  41 </td> <td align="right"> 528.71 </td> <td align="right"> -5.73 </td> </tr>
+  <tr> <td align="right"> 9 </td> <td> N108UW </td> <td align="right">  60 </td> <td align="right"> 534.50 </td> <td align="right"> -1.25 </td> </tr>
+  <tr> <td align="right"> 10 </td> <td> N109UW </td> <td align="right">  48 </td> <td align="right"> 535.88 </td> <td align="right"> -2.52 </td> </tr>
+   </table>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-21" style="background:;">
+  <article data-timings="">
+    <p>找出所有可能目的地的飞机数和航班数</p>
+
+<pre><code class="r">dest = group_by(flights, dest)
+summarise(dest, 
+          planes = n_distinct(tailnum),
+          flights = n()
+)
+</code></pre>
+
+<pre><code># A tibble: 105 × 3
+    dest planes flights
+   &lt;chr&gt;  &lt;int&gt;   &lt;int&gt;
+1    ABQ    108     254
+2    ACK     58     265
+3    ALB    172     439
+4    ANC      6       8
+5    ATL   1180   17215
+6    AUS    993    2439
+7    AVL    159     275
+8    BDL    186     443
+9    BGR     46     375
+10   BHM     45     297
+# ... with 95 more rows
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h2>按多个变量进行分组</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">daily &lt;- group_by(flights, year, month, day)
+(per_day   &lt;- summarise(daily, flights = n()))
+</code></pre>
+
+<pre><code>Source: local data frame [365 x 4]
+Groups: year, month [?]
+
+    year month   day flights
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;   &lt;int&gt;
+1   2013     1     1     842
+2   2013     1     2     943
+3   2013     1     3     914
+4   2013     1     4     915
+5   2013     1     5     720
+6   2013     1     6     832
+7   2013     1     7     933
+8   2013     1     8     899
+9   2013     1     9     902
+10  2013     1    10     932
+# ... with 355 more rows
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-23" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">(per_month &lt;- summarise(per_day, flights = sum(flights)))
+</code></pre>
+
+<pre><code>Source: local data frame [12 x 3]
+Groups: year [?]
+
+    year month flights
+   &lt;int&gt; &lt;int&gt;   &lt;int&gt;
+1   2013     1   27004
+2   2013     2   24951
+3   2013     3   28834
+4   2013     4   28330
+5   2013     5   28796
+6   2013     6   28243
+7   2013     7   29425
+8   2013     8   29327
+9   2013     9   27574
+10  2013    10   28889
+11  2013    11   27268
+12  2013    12   28135
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-24" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">(per_year  &lt;- summarise(per_month, flights = sum(flights)))
+</code></pre>
+
+<pre><code># A tibble: 1 × 2
+   year flights
+  &lt;int&gt;   &lt;int&gt;
+1  2013  336776
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2><code>%&gt;%</code>: 链式运算</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>找出日平均起飞延迟时间和平均抵达延迟时间都大于30的日期</p>
+
+<div style='float:left;width:48%;'>
+  <pre><code class="r">flights %&gt;%
+  group_by(year, month, day) %&gt;%
+  select(arr_delay, dep_delay) %&gt;%
+  summarise(
+    arr = mean(arr_delay, na.rm = TRUE),
+    dep = mean(dep_delay, na.rm = TRUE)
+  ) %&gt;%
+  filter(arr &gt; 30 | dep &gt; 30)
+</code></pre>
+
+</div>
+<div style='float:right;width:48%;'>
+  <pre><code>Source: local data frame [49 x 5]
+Groups: year, month [11]
+
+    year month   day   arr   dep
+   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+1   2013     1    16  34.2  24.6
+2   2013     1    31  32.6  28.7
+3   2013     2    11  36.3  39.1
+4   2013     2    27  31.3  37.8
+5   2013     3     8  85.9  83.5
+6   2013     3    18  41.3  30.1
+7   2013     4    10  38.4  33.0
+8   2013     4    12  36.0  34.8
+9   2013     4    18  36.0  34.9
+10  2013     4    19  47.9  46.1
+# ... with 39 more rows
+</code></pre>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='数据框 (<code>data.frame</code>)'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='NA'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='<code>dplyr</code> 常用函数'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='使用 <code>filter()</code> 来过滤行'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='NA'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='使用 <code>arrange()</code> 对行进行排序'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='NA'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='NA'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='使用 <code>select()</code> 选择列'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='NA'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='NA'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='NA'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='使用 <code>distinct()</code> 提取不重复的行'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='使用 <code>mutate()</code> 创建新列'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='如果只想保留新创建的变量'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='使用 <code>summarise()</code> 进行汇总'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='随机选择一些行 <code>sample_n()</code>, <code>sample_frac()</code>'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='NA'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='分组运算 <code>group_by()</code>'>
+         19
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=20 title='NA'>
+         20
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=21 title='NA'>
+         21
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=22 title='按多个变量进行分组'>
+         22
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=23 title='NA'>
+         23
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=24 title='NA'>
+         24
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=25 title='<code>%&gt;%</code>: 链式运算'>
+         25
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  <script src="libraries/widgets/quiz/js/jquery.quiz.js"></script>
+<script src="libraries/widgets/quiz/js/mustache.min.js"></script>
+<script src="libraries/widgets/quiz/js/quiz-app.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootstrap.min.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootbox.min.js"></script>
+<script src="libraries/widgets/interactive/js/ace/js/ace.js"></script>
+<script src="libraries/widgets/interactive/js/opencpu-0.5.js"></script>
+<script src="libraries/widgets/interactive/js/interactive.js"></script>
+
+  
+  <script>  
+  $(function (){ 
+    $("#example").popover(); 
+    $("[rel='tooltip']").tooltip(); 
+  });  
+  </script>  
+  <script src="shared/shiny.js" type="text/javascript"></script>
+  <script src="shared/slider/js/jquery.slider.min.js"></script>
+  <script src="shared/bootstrap/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="shared/slider/css/jquery.slider.min.css"></link>
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
